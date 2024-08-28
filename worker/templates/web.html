@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="messages"></div>
+
+    <script>
+        // Token va WebSocket URL
+
+        const userId = 2; // Bu yerda haqiqiy user ID-ni yozing
+        const wsUrl = `ws://localhost:8000/ws/client/?user_id=${userId}`;
+
+        // WebSocket ulanishi yaratish
+        const socket = new WebSocket(wsUrl);
+
+        // WebSocket ulanishi ochilganida
+        socket.onopen = function(event) {
+            console.log("WebSocket ulanishi ochildi.");
+            document.getElementById("messages").innerHTML += "<p>WebSocket ulanishi ochildi.</p>";
+        };
+
+        // WebSocket orqali xabar qabul qilinganda
+        socket.onmessage = function(event) {
+            console.log("Serverdan xabar:", event.data);
+            document.getElementById("messages").innerHTML += `<p>Serverdan xabar: ${event.data}</p>`;
+        };
+
+        // WebSocket ulanishi yopilganda
+        socket.onclose = function(event) {
+            console.log("WebSocket ulanishi yopildi.");
+            document.getElementById("messages").innerHTML += "<p>WebSocket ulanishi yopildi.</p>";
+        };
+
+        // WebSocket xatolik yuz berganda
+        socket.onerror = function(error) {
+            console.log("WebSocket xatosi:", error);
+            document.getElementById("messages").innerHTML += `<p>WebSocket xatosi: ${error}</p>`;
+        };
+    </script>
+</body>
+</html>
