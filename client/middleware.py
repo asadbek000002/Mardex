@@ -18,7 +18,7 @@ class UserAuthMiddleware(BaseMiddleware):
         # user_id ni query string'dan olish
         query_string = parse_qs(scope["query_string"].decode())
         user_id = query_string.get("user_id", [None])[0]
-        print(f"Received user_id: {user_id}")
+
 
         if user_id:
             user = await self.get_user_by_id(user_id)

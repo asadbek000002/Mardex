@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from users.models import AbstractUser
 
 User = get_user_model()
 
@@ -10,7 +9,7 @@ class WorkerRegistrationSerializer(serializers.ModelSerializer):
     password_confirmation = serializers.CharField(write_only=True)
 
     class Meta:
-        model = AbstractUser
+        model = User
         fields = ['phone', 'password', 'password_confirmation', 'full_name', 'region', 'city', 'gender']
 
     def validate(self, data):
@@ -22,7 +21,7 @@ class WorkerRegistrationSerializer(serializers.ModelSerializer):
         # Parol tasdiqlash maydonini o'chirish
         validated_data.pop('password_confirmation')
 
-        worker = AbstractUser(
+        worker = User(
             phone=validated_data['phone'],
             full_name=validated_data['full_name'],
             region=validated_data.get('region'),
@@ -42,7 +41,7 @@ class WorkerLoginSerializer(serializers.Serializer):
     def validate(self, data):
         phone = data.get("phone")
         password = data.get("password")
-        worker = AbstractUser.objects.filter(phone=phone).first()
+        worker = User.objects.filter(phone=phone).first()
 
         if worker and worker.check_password(password):
             return worker
@@ -71,3 +70,9 @@ class WorkerPasswordChangeSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+
+
+class WorkerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['avatar', 'description', 'full_name', 'job_category', 'job_id', 'role']

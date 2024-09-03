@@ -1,12 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import WorkerRegistrationSerializer, WorkerLoginSerializer, \
-    WorkerPasswordChangeSerializer
+    WorkerPasswordChangeSerializer, WorkerSerializer
 
-from users.models import AbstractUser
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 def websocket_test(request):
@@ -14,7 +16,7 @@ def websocket_test(request):
 
 
 class WorkerRegistrationView(generics.CreateAPIView):
-    queryset = AbstractUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = WorkerRegistrationSerializer
     permission_classes = [AllowAny]
 
@@ -61,3 +63,18 @@ class WorkerPasswordChangeView(generics.GenericAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
+
+
+class WorkerDetailView(generics.RetrieveAPIView):
+    serializer_class = WorkerSerializer
+
+    def get_queryset(self):
+        # Faqat 'role=worker' bo'lgan foydalanuvchilarni filtrlash
+        return User.objects.filter(role='worker')
+
+    def get(self, request, *args, **kwargs):
+        worker_id = kwargs.get('id')
+        # Filtrlashdan so'ng foydalanuvchini olish
+        worker = get_object_or_404(self.get_queryset(), id=worker_id)
+        serializer = self.get_serializer(worker)
+        return Response(serializer.data)

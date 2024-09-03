@@ -9,6 +9,11 @@ from users.models import AbstractUser
 
 
 class Order(models.Model):
+    GENDER_CHOICES = [
+        ('Male', 'Erkak'),
+        ('Female', 'Ayol'),
+    ]
+
     STATUS_CHOICES = [
         ('stable', 'Stable'),
         ('success', 'Success'),
@@ -16,11 +21,14 @@ class Order(models.Model):
         ('cancel_user', 'Cancel by User'),
     ]
 
-    worker = models.ForeignKey(AbstractUser, on_delete=models.SET_NULL, blank=True, null=True, related_name='orders_as_worker')
+    worker = models.ForeignKey(AbstractUser, on_delete=models.SET_NULL, blank=True, null=True,
+                               related_name='orders_as_worker')
     accepted_workers = models.ManyToManyField(AbstractUser, related_name='accepted_orders')
     client = models.ForeignKey(AbstractUser, on_delete=models.SET_NULL, blank=True, null=True, related_name='client')
     job_category = models.ForeignKey(CategoryJob, on_delete=models.SET_NULL, blank=True, null=True)
     job_id = models.ManyToManyField(Job)
+    region = models.ForeignKey(Region, on_delete=models.SET_NULL, blank=True, null=True)
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, blank=True, null=True)
     price = models.CharField(max_length=255, blank=True, null=True)
     desc = models.TextField(default="", blank=True, null=True)
     full_desc = models.TextField(default="", blank=True, null=True)
@@ -28,6 +36,7 @@ class Order(models.Model):
     # location = models.JSONField(default=dict)
     images = models.ImageField(upload_to='order_image/', blank=True, null=True)
     is_finish = models.BooleanField(default=False)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='Male')
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
