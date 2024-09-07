@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import login_not_required
 from django.db.models import Q
 from rest_framework import status, generics
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -146,13 +148,10 @@ class OrderUpdateView(generics.GenericAPIView):
         job_category = data.get('job_category')
         gender = data.get('gender')
 
-        print('job_ids:', job_ids, 'city:', city, 'category:', job_category, 'gender:', gender)
-        print(f'job_ids ning tipi: {type(job_ids)}')
+        worker_ids = set()
 
-        # Ishchilar ro'yxatini yaratish
         temp_worker_list = []
 
-        # Filtrlash uchun qidiruv so'rovi
         query = Q()
 
         if city:
@@ -164,11 +163,15 @@ class OrderUpdateView(generics.GenericAPIView):
         if gender:
             query &= Q(gender=gender)
 
-        # Filterlangan ishchilarni olish
+
         workers = User.objects.filter(query)
 
-        # Filtrlangan ishchilarni vaqtinchalik ro'yxatga qo'shish
-        temp_worker_list.extend(workers)
+        temp_worker_list = []
+
+        for worker in workers:
+            if worker.id not in worker_ids:
+                worker_ids.add(worker.id)
+                temp_worker_list.append(worker)
 
         return temp_worker_list
 
@@ -187,26 +190,27 @@ class NotifyWorkersView(generics.GenericAPIView):
             workers = User.objects.filter(id__in=worker_ids)
 
             # Xabar yuborish
-            self.create_order_and_notify(workers, message, order_id)
+            self.create_order_notify_for_worker(workers, message, order_id)
 
             return Response({'status': 'Notifications sent'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def create_order_and_notify(self, worker_list, message, order_id):
+    def create_order_notify_for_worker(self, worker_list, message, order_id):
         channel_layer = get_channel_layer()
         for worker in worker_list:
             user_channel_name = f"user_{worker.id}"
             async_to_sync(channel_layer.group_send)(
                 user_channel_name,
                 {
-                    "type": "order_message",
+                    "type": "order_message_worker",
                     "message": message,
                     "order_id": order_id
                 }
             )
 
 
-def confirm_order(request, order_id):
+@api_view(['POST'])
+def accepted_workers_notify_for_client(request, order_id):
     user = request.user
     if not user.is_authenticated:
         return HttpResponse("User not authenticated", status=401)
@@ -216,6 +220,25 @@ def confirm_order(request, order_id):
     # Workerni orderning accepted_workers maydoniga qo'shish
     if user not in order.accepted_workers.all():
         order.accepted_workers.add(user)
+        order.view_count += 1
         order.save()
+
+        channel_layer = get_channel_layer()
+        # Orderni yaratgan userga xabar yuborish
+        client = order.client  # Orderni yaratgan user
+
+        user_channel_name = f"user_{client.id}"
+        async_to_sync(channel_layer.group_send)(
+            user_channel_name,
+            {
+                "type": "order_message_client",
+                "worker_id": user.id,
+                "ful_name": user.full_name,
+                "phone": user.phone,
+                "order_id": order_id,
+                "view_count": order.view_count
+
+            }
+        )
 
     return HttpResponse("Order confirmed", status=200)

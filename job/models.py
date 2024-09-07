@@ -30,7 +30,6 @@ class Job(models.Model):
         ordering = ['created_at']
 
 
-
 class City(models.Model):
     title = models.CharField(max_length=255, verbose_name="City Name")
 
@@ -49,6 +48,14 @@ class Region(models.Model):
     class Meta:
         verbose_name = "Region"
         verbose_name_plural = "Regions"
+
+    def __str__(self):
+        return self.title
+
+
+class Proba(models.Model):
+    title = models.CharField(max_length=255, verbose_name="City Name")
+    city_id = models.ForeignKey(City, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.title

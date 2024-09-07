@@ -3,7 +3,6 @@ venv
 env
 .idea
 __pycache__
-migrations
 *.sqlite3
 mediafiles
 staticfiles

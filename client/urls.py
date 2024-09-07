@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ClientRegistrationView, ClientLoginView, ClientPasswordChangeView, OrderUpdateView, confirm_order, \
+from .views import ClientRegistrationView, ClientLoginView, ClientPasswordChangeView, OrderUpdateView, \
     NotifyWorkersView, JobListByCategoryView, OrderCategoryJobCreateView
 
 urlpatterns = [

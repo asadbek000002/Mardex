@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 Mardex_1.asgi:application"
+    volumes:
+      - .:/Mardex_1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - db_mardex
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6377
+      - DATABASE_HOST=db_mardex
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=mardex
+      - DATABASE_USER=mardex_user
+      - DATABASE_PASSWORD=mardex_password
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6377:6379"
+
+  db_mardex:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: mardex
+      POSTGRES_USER: mardex_user
+      POSTGRES_PASSWORD: mardex_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

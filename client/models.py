@@ -37,6 +37,7 @@ class Order(models.Model):
     images = models.ImageField(upload_to='order_image/', blank=True, null=True)
     is_finish = models.BooleanField(default=False)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='Male')
+    view_count = models.IntegerField(default=0)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
