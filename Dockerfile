@@ -34,7 +34,7 @@ RUN python manage.py collectstatic --noinput
 ENV DJANGO_SETTINGS_MODULE=Mardex_1.settings
 
 # Expose port
-EXPOSE 8001
+EXPOSE 8000
 
 # Run migrations and start Daphne server
-CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8001 Mardex_1.asgi:application"]
+CMD ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 Mardex_1.asgi:application"]
