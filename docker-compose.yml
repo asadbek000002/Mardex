@@ -5,7 +5,9 @@ services:
     build: .
     command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 Mardex_1.asgi:application"
     volumes:
-      - .:/Mardex_1
+      - .:/Mardex
+      - static_volume:/Mardex/staticfiles
+      - media_volume:/Mardex/mediafiles
     ports:
       - "8002:8000"
     depends_on:
@@ -38,3 +40,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
