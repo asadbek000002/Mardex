@@ -26,7 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-SITE_URL = "127.0.0.1:8000"
+SITE_URL = "https://mardex.uz"
 ASGI_APPLICATION = 'Mardex_1.asgi.application'
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
     'oauth2_provider',
     'users',
     'employees',
@@ -146,6 +147,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = f'{BASE_DIR}/mediafiles'
@@ -161,6 +165,9 @@ REST_FRAMEWORK = {
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         # 'drf_social_oauth2.authentication.SocialAuthentication',
         # 'cookieapp.authenticate.CustomAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',  # Boshqa yerda autentifikatsiya talab qilmaslik
     )
 }
 
@@ -198,4 +205,7 @@ SIMPLE_JWT = {
 
 
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:80002', 'https://mardex.uz']
+CORS_ALLOWED_ORIGINS = [
+    'https://mardex.uz',
+]
